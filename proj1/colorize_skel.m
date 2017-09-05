@@ -1,7 +1,10 @@
 % CS194-26 (cs219-26): Project 1, starter Matlab code
 
 % name of the input file
-imname = 'cathedral.jpg';
+% imname = 'monastery.jpg';
+% imname = 'nativity.jpg';
+% imname = 'settlers.jpg';
+% imname = 'cathedral.jpg';
 
 % read in the image
 fullim = imread(imname);
@@ -21,8 +24,8 @@ R = fullim(height*2+1:height*3,:);
 % Functions that might be useful to you for aligning the images include: 
 % "circshift", "sum", and "imresize" (for multiscale)
 
-% crop image by -30 to 30 pixels around border
-cropAmount = 19;
+% crop image by -19 to 19 pixels around border
+cropAmount = 20;
 Hcrop = height - cropAmount;
 Wcrop = width - cropAmount;
 
@@ -40,6 +43,7 @@ rNew = circshift(R, [rx, ry]);
 
 RGB = cat(3, rNew, gNew, B);
 figure, imshow(RGB);
+
 
 
 [gx,gy] = align(Gcropped, Bcropped, offset, "NCC");
@@ -60,24 +64,20 @@ function [x, y] = align(img, base, offset, option)
     displacement = zeros((offset*2));
     baseNorm = baseV/norm(baseV);
     
-    for h = 1:(offset*2)
-        for w = 1:(offset*2)
-            img = circshift(img,1,2);
+    for h = -offset+1:offset
+        for w = -offset+1:offset
+            imgShifted = circshift(img,[h,w]);
+            y1 = h+15;
+            x1 = w+15;
             if (option == "NCC")
-                imgV = img(:);
+                imgV = imgShifted(:);
                 imgNorm = imgV/norm(imgV);
-                displacement(h, w) = dot(baseNorm, imgNorm);
+                displacement(y1, x1) = dot(baseNorm, imgNorm);
             else
-                displacement(h, w) = sum(sum((base-img).^2));
+                displacement(y1, x1) = sum(sum((base-imgShifted).^2));
             end
-            
-        end
-        if h ~= (offset*2)
-            img = circshift(img,-offset*2,2);
-            img = circshift(img,1,1);
         end
     end
-    img = circshift(img,[-offset*2,-offset*2]);
     
     if (option == "NCC")
         [M,I] = max(displacement(:));
@@ -85,5 +85,7 @@ function [x, y] = align(img, base, offset, option)
         [M,I] = min(displacement(:));
     end
     [x, y] = ind2sub(size(displacement), I);
+    x = x-15;
+    y = y-15;
 
 end
