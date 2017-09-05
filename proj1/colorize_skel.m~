@@ -1,7 +1,7 @@
 % CS194-26 (cs219-26): Project 1, starter Matlab code
 
 % name of the input file
-imname = 'cathedral.jpg';
+imname = 'c.jpg';
 
 % read in the image
 fullim = imread(imname);
@@ -20,84 +20,67 @@ R = fullim(height*2+1:height*3,:);
 % Align the images
 % Functions that might be useful to you for aligning the images include: 
 % "circshift", "sum", and "imresize" (for multiscale)
+
+% crop image by -30 to 30 pixels around border
+cropAmount = 19;
+Hcrop = height - cropAmount;
+Wcrop = width - cropAmount;
+
+
+Bcropped=B(1+cropAmount:Hcrop,1+cropAmount:Wcrop);
+Gcropped=G(1+cropAmount:Hcrop,1+cropAmount:Wcrop);
+Rcropped=R(1+cropAmount:Hcrop,1+cropAmount:Wcrop);
+
 offset = 15;
-widthPad = width + offset*2;
-heightPad = height + offset*2;
-
-Bpad = padarray(B, [offset offset], 0, 'both');
-Gpad = padarray(G, [offset*2 offset*2], 0, 'post');
-Rpad = padarray(R, [offset*2 offset*2], 0, 'post');
-
-Bnorm = normc(Bpad);
 
 
-displacement = zeros(offset*2, offset*2);
+gNew = circshift(G, align(Gcropped, Bcropped, offset, "SSD"));
+rNew = circshift(R, align(Rcropped, Bcropped, offset, "SSD"));
+
+RGB = cat(3, rNew, gNew, B);
+figure, imshow(RGB);
 
 
+gNew = circshift(G, align(Gcropped, Bcropped, offset, "NCC"));
+rNew = circshift(R, align(Rcropped, Bcropped, offset, "NCC"));
 
-% figure, imshow(Gpad)
-for h = 1:(offset*2)+1
-    for w = 1:(offset*2)
-        Gpad = circshift(Gpad,1,2);
-        
-        Gnorm = normc(Gpad);
-        GBdot = dot(Gnorm, Bnorm);
-        displacement(h, w) = sum(GBdot)/widthPad;
-    end
-    if h ~= (offset*2)+1
-        Gpad = circshift(Gpad,-offset*2,2);
-        Gpad = circshift(Gpad,1,1);
-    end
-end
-Gpad = circshift(Gpad,[-offset*2,-offset*2]);
-
-[M,I] = max(displacement(:));
-[I_row, I_col] = ind2sub(size(displacement),I);
-
-Gpad = circshift(Gpad,[I_row,I_col]);
-imshow(Gpad)
+RGB = cat(3, rNew, gNew, B);
+figure, imshow(RGB)
 
 
 
 
-for h = 1:(offset*2)+1
-    for w = 1:(offset*2)
-        Rpad = circshift(Rpad,1,2);
-        
-        Rnorm = normc(Rpad);
-        RBdot = dot(Rnorm, Bnorm);
-        displacement(h, w) = sum(RBdot)/widthPad;
-    end
-    if h ~= (offset*2)+1
-        Rpad = circshift(Rpad,-offset*2,2);
-        Rpad = circshift(Rpad,1,1);
-    end
-end
-Gpad = circshift(Gpad,[-offset*2,-offset*2]);
-
-[M,I] = max(displacement(:));
-[I_row, I_col] = ind2sub(size(displacement),I);
-
-Gpad = circshift(Gpad,[I_row,I_col]);
-imshow(Gpad)
-
-
-       
-        
-        
-% aG = align(G,B);
-
-
-
-% aR = align(R,B);
-
-
-% open figure
-%% figure(1);
-
-% create a color image (3D array)
-% ... use the "cat" command
-% show the resulting image
-% ... use the "imshow" command
-% save result image
 %% imwrite(colorim,['result-' imname]);
+
+function [x, y] = align(img, base, offset, option)
+    baseV = base(:);
+    displacement = zeros((offset*2));
+    baseNorm = baseV/norm(baseV);
+    
+    for h = 1:(offset*2)
+        for w = 1:(offset*2)
+            img = circshift(img,1,2);
+            if (option == "NCC")
+                imgV = img(:);
+                imgNorm = imgV/norm(imgV);
+                displacement(h, w) = dot(baseNorm, imgNorm);
+            else
+                displacement(h, w) = sum(sum((base-img).^2));
+            end
+            
+        end
+        if h ~= (offset*2)
+            img = circshift(img,-offset*2,2);
+            img = circshift(img,1,1);
+        end
+    end
+    img = circshift(img,[-offset*2,-offset*2]);
+    
+    if (option == "NCC")
+        [M,I] = max(displacement(:));
+    else
+        [M,I] = min(displacement(:));
+    end
+    [x, y] = ind2sub(size(displacement), I);
+
+end
