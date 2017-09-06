@@ -1,8 +1,11 @@
 % CS194-26 (cs219-26): Project 1, starter Matlab code
 
 % name of the input file
-imname = 'cathedral.jpg';
 
+imname_small = ['monastery.jpg', "nativity.jpg", "settlers.jpg", "cathedral.jpg"];
+imname_large = ["harvesters.tif", "emir.tif", "three_generations.tif", "turkmen.tif", "lady.tif", "train.tif", "icon.tif", "self_portrait.tif", "village.tif"];
+
+imname = imname_large{1,5};
 % read in the image
 fullim = imread(imname);
 
@@ -21,8 +24,8 @@ R = fullim(height*2+1:height*3,:);
 % Functions that might be useful to you for aligning the images include: 
 % "circshift", "sum", and "imresize" (for multiscale)
 
-% crop image by -19 to 19 pixels around border
-cropAmount = 19;
+% crop image by 10% around border
+cropAmount = ((height+width)/2)*(0.10);
 Hcrop = height - cropAmount;
 Wcrop = width - cropAmount;
 
@@ -33,27 +36,32 @@ Rcropped=R(1+cropAmount:Hcrop,1+cropAmount:Wcrop);
 
 offset = 15;
 
-[gx,gy] = align(Gcropped, Bcropped, offset, "SSD");
-gNew = circshift(G, [gx, gy]);
-[rx,ry] = align(Rcropped, Bcropped, offset, "SSD");
-rNew = circshift(R, [rx, ry]);
+% [gx,gy] = align(Gcropped, Bcropped, offset, "SSD");
+% gNew = circshift(G, [gx, gy]);
+% [rx,ry] = align(Rcropped, Bcropped, offset, "SSD");
+% rNew = circshift(R, [rx, ry]);
+% 
+% RGB = cat(3, rNew, gNew, B);
+% figure, imshow(RGB);
+% 
+% 
+% 
+% [gx,gy] = align(Gcropped, Bcropped, offset, "NCC");
+% gNew = circshift(G, [gx, gy]);
+% [rx,ry] = align(Rcropped, Bcropped, offset, "NCC");
+% rNew = circshift(R, [rx, ry]);
+% 
+% RGB = cat(3, rNew, gNew, B);
+% figure, imshow(RGB)
 
+% pyramid:
+
+[gx, gy, rx, ry] = alignPyramid(Gcropped, Rcropped, Bcropped, offset+1);
+gNew = circshift(G, [gx, gy]);
+rNew = circshift(R, [rx, ry]);
 
 RGB = cat(3, rNew, gNew, B);
 figure, imshow(RGB);
-
-
-
-[gx,gy] = align(Gcropped, Bcropped, offset, "NCC");
-gNew = circshift(G, [gx, gy]);
-[rx,ry] = align(Rcropped, Bcropped, offset, "NCC");
-rNew = circshift(R, [rx, ry]);
-
-RGB = cat(3, rNew, gNew, B);
-figure, imshow(RGB)
-
-
-
 
 %% imwrite(colorim,['result-' imname]);
 
@@ -65,9 +73,8 @@ function [x, y] = align(img, base, offset, option)
     for h = -offset+1:offset
         for w = -offset+1:offset
             imgShifted = circshift(img,[h,w]);
-            y1 = h+15;
-            x1 = w+15;
-%             imshow(imgShifted);
+            y1 = h+offset;
+            x1 = w+offset;
             if (option == "NCC")
                 imgV = imgShifted(:);
                 imgNorm = imgV/norm(imgV);
@@ -84,7 +91,56 @@ function [x, y] = align(img, base, offset, option)
         [M,I] = min(displacement(:));
     end
     [x, y] = ind2sub(size(displacement), I);
-    x = x-15;
-    y = y-15;
+    x = x-offset;
+    y = y-offset;
 
 end
+
+function [gxe, gye, rxe, rye] = alignPyramid(imgG, imgR, base, offset)
+    
+    scale = 1/32;
+    gx = 0;
+    gy = 0;
+    
+    gxe = 0;
+    gye = 0;
+    
+    rx = 0;
+    ry = 0;
+    
+    rxe = 0;
+    rye = 0;
+    while (scale <= 1)
+        imgGScaled = imresize(imgG, scale);
+        imgRScaled = imresize(imgR, scale);
+        baseScaled= imresize(base, scale);
+        
+        imgGScaled = circshift(imgGScaled, [gy, gx]);
+        imgRScaled = circshift(imgRScaled, [ry, rx]);
+        
+        [gx, gy] = align(imgGScaled, baseScaled, offset, "SSD");
+        [rx, ry] = align(imgRScaled, baseScaled, offset, "SSD");
+        
+        gxe = gxe*2 + gx;
+        gye = gye*2 + gy;
+        
+        rxe = rxe*2 + rx;
+        rye = rye*2 + ry;
+        
+%         gNew = circshift(imgGScaled, [gxe, gye]);
+%         rNew = circshift(imgRScaled, [rxe, ry]);
+%         RGB = cat(3, rNew, gNew, baseScaled);
+%         figure, imshow(RGB);
+        scale = scale*2;
+        
+        if (scale == 1/16)
+            offset = 4;
+        elseif (scale == 1/18)
+            offset = 2;
+        else
+            offset = 1;
+        end
+    end
+end
+
+
