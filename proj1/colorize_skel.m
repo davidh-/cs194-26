@@ -25,7 +25,7 @@ R = fullim(height*2+1:height*3,:);
 % "circshift", "sum", and "imresize" (for multiscale)
 
 % crop image by 10% around border
-cropAmount = ((height+width)/2)*(0.15);
+cropAmount = ((height+width)/2)*(0.10);
 Hcrop = height - cropAmount;
 Wcrop = width - cropAmount;
 
@@ -56,11 +56,21 @@ offset = 15;
 
 % pyramid:
 
-[gx, gy, rx, ry] = alignPyramid(Gcropped, Rcropped, Bcropped, offset+1);
-gNew = circshift(G, [gx, gy]);
-rNew = circshift(R, [rx, ry]);
+% blue as base:
+
+[gx, gy, rx, ry] = alignPyramid(Gcropped, Rcropped, Bcropped, offset);
+gNew = circshift(G, [gy, gx]);
+rNew = circshift(R, [ry, rx]);
 
 RGB = cat(3, rNew, gNew, B);
+
+% green as base:
+
+% [bx, by, rx, ry] = alignPyramid(Bcropped, Rcropped, Gcropped, offset);
+% bNew = circshift(B, [by, bx]);
+% rNew = circshift(R, [ry, rx]);
+% 
+% RGB = cat(3, rNew, G, bNew);
 figure, imshow(RGB);
 
 %% imwrite(colorim,['result-' imname]);
@@ -73,8 +83,8 @@ function [x, y] = align(img, base, offset, option)
     for h = -offset+1:offset
         for w = -offset+1:offset
             imgShifted = circshift(img,[h,w]);
-            y1 = h+offset;
             x1 = w+offset;
+            y1 = h+offset;
             if (option == "NCC")
                 imgV = imgShifted(:);
                 imgNorm = imgV/norm(imgV);
@@ -90,7 +100,7 @@ function [x, y] = align(img, base, offset, option)
     else
         [M,I] = min(displacement(:));
     end
-    [x, y] = ind2sub(size(displacement), I);
+    [y, x] = ind2sub(size(displacement), I);
     x = x-offset;
     y = y-offset;
 
@@ -98,7 +108,7 @@ end
 
 function [gxe, gye, rxe, rye] = alignPyramid(imgG, imgR, base, offset)
     
-    scale = 1/16;
+    scale = 1/8;
     gx = 0;
     gy = 0;
     
@@ -115,11 +125,11 @@ function [gxe, gye, rxe, rye] = alignPyramid(imgG, imgR, base, offset)
         imgRScaled = imresize(imgR, scale);
         baseScaled= imresize(base, scale);
         
-        imgGScaled = circshift(imgGScaled, [gy, gx]);
-        imgRScaled = circshift(imgRScaled, [ry, rx]);
+        imgGScaled_Shifted = circshift(imgGScaled, [gye, gxe]);
+        imgRScaled_Shifted = circshift(imgRScaled, [rye, rxe]);
         
-        [gx, gy] = align(imgGScaled, baseScaled, offset, "SSD");
-        [rx, ry] = align(imgRScaled, baseScaled, offset, "SSD");
+        [gx, gy] = align(imgGScaled_Shifted, baseScaled, offset, "SSD");
+        [rx, ry] = align(imgRScaled_Shifted, baseScaled, offset, "SSD");
         
         gxe = gxe*2 + gx;
         gye = gye*2 + gy;
@@ -127,17 +137,13 @@ function [gxe, gye, rxe, rye] = alignPyramid(imgG, imgR, base, offset)
         rxe = rxe*2 + rx;
         rye = rye*2 + ry;
         
-%         gNew = circshift(imgGScaled, [gxe, gye]);
-%         rNew = circshift(imgRScaled, [rxe, ry]);
+
+%         gNew = circshift(imgGScaled, [gye, gxe]);
+%         rNew = circshift(imgRScaled, [rye, rxe]);
 %         RGB = cat(3, rNew, gNew, baseScaled);
 %         figure, imshow(RGB);
-        scale = scale*2;
-        
-        if (scale == 1/8)
-            offset = 2;
-        else
-            offset = 1;
-        end
+        scale = scale *2;
+        offset = 1;
     end
 end
 
