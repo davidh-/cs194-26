@@ -1,0 +1,12 @@
+.tif-element {
+  width: 391px;
+  height: 380px;
+}
+
+.grid-element {
+  float: left;
+}
+
+#tif-img-container {
+  clear: left;
+}

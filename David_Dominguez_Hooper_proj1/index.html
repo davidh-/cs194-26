@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html class="gr__inst_eecs_berkeley_edu"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <link rel="stylesheet" type="text/css" href="./mystyle.css">
+  </head>
+  <body data-gr-c-s-loaded="true">
+    <h1>Colorizing the Prokudin-Gorskii photo collection</h1>
+    <div>
+      <h2>David Dominguez Hooper</h2>
+      <br>
+      <h2>Background</h2>
+      <p>
+        Sergei Mikhailovich Prokudin-Gorskii (1863-1944) photographed thousands of color pictures by recording three exposures of every scene onto a glass plate using a red, a green, and a blue filter. For the purpose of this project, I used digitized Prokudin-Gorskii glass plate images to generate clear color images by extracting each color channel and aligning them on top of each other.
+      </p>
+    </div>
+    <div>
+      <h2>Algorithm</h2>
+      <p>
+
+        I first tried the simple naive approach of using two for loops to go through the small .jpg images by rolling the image by an offset of [-15 to 15] pixels in both the x and y directions. I tried both SSD and NCC to calculate the best displacement for each of G and R channels that match the B channels the best. I found that SSD gives better runtimes for processing images, so I stuck to that. This worked for the small .jpg files, but took too long for the larger .tif files.
+
+        So, I used the pyramid approach to scale down the large .tif images to 1/16 scale to start off. I then used SSD as before on the 1/16th scale image to get an intital displacement. After I get the displacement, I increase the scale by a factor of two and repeat the process until we are back at the full image size. An important note is that the next displacement values for x,y are a function of the previous displacement values, i.e. x_new = (x_old)*2 + x_dis, y_new = (y_old)*2 + y_dis.
+
+
+        I also pre-process the image by cropping 10% of the border in order to give better results when calculating alignment. 
+
+      </p>
+    </div>
+    <div>
+      <h2>Challenges</h2>
+      <p>
+        The first challenge I faced was when I approached the pyramid algorithm. I tried a recursive implementation but could not get a working solution. So, I tried an iterative approach and had success with that. The second challenge I had with alignment was with the Emir photo. I could not get good alignment using the base image as the blue channel. I tried using the green channel as the base and found the displacements for the blue and red channels and had success.
+      </p>
+    </div>
+    <div id="jpg-img-container">
+      <h2>Small JPG Images:</h2>
+      <div class="grid-element">
+        <div>Cathedral, G: (2, 5), R: (3, 12)</div>
+        <img src="./small_SSD_(2.5)_(3.12)_cathedral.jpg">
+      </div>
+      <div class="grid-element">
+        <div>Monastery, G: (2, -3), R: (2, 3)</div>
+        <img src="./small_SSD_(2.-3)_(2.3)_monastery.jpg">
+      </div>
+      <div class="grid-element">
+        <div>Nativity, G: (1, 3), R: (0, 7)</div>
+        <img src="./small_SSD_(1.3)_(0.7)_nativity.jpg">
+      </div>
+      <div class="grid-element">
+        <div>Settlers, G: (0, 7), R: (-1, 14)</div>
+        <img src="./small_SSD_(0.7)_(-1.14)_settlers.jpg">
+      </div>
+    </div>
+    <div id="tif-img-container">
+    <br>
+      <h2>Large TIF Images (with Blue base):</h2>
+      <div class="grid-element">
+        <div>Harvesters, G: (31, 79), R: (21, 143)</div>
+        <img src="./harvesters_large_pyramid_blue_base_(31.79)_(21.143)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Icon, G: (31, 63), R: (31, 111)</div>
+        <img src="./icon_large_pyramid_blue_base_(31.63)_(31.111)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Lady, G: (18, 63), R: (16, 127)</div>
+        <img src="./lady_large_pyramid_blue_base_(18.63)_(16.127)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Self Portrait, G: (42, 95), R: (47, 191)</div>
+        <img src="./self_portrait_large_pyramid_blue_base_(42.95)_(47.191)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Three Generations, G: (25, 63), R: (22, 127)</div>
+        <img src="./three_generations_large_pyramid_blue_base_(25.63)_(22.127)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Turkmen, G: (31, 63), R: (46, 127)</div>
+        <img src="./turkmen_large_pyramid_blue_base_(31.63)_(46.127)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Village, G: (17, 79), R: (23, 143)</div>
+        <img src="./village_large_pyramid_blue_base_(17.79)_(23.143)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Train, G: (11, 63), R: (47, 111)</div>
+        <img src="./train_large_pyramid_blue_base_(11.63)_(47.111)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Emir, G: (40, 63), R: (-193, 104)</div>
+        <img src="./emir_large_pyramid_blue_base_(40.63)_(-193.104)_.png" class="tif-element">
+      </div>
+    </div>
+    <div id="tif-img-container">
+    <br>
+    <h1>Bells and Whistles:</h1>
+    <br>
+      <h2>Large TIF Images (with Green base):</h2>
+      <div class="grid-element">
+        <div>Harvesters, B: (-16, 64), R: (0, 79)</div>
+        <img src="./harvesters_large_pyramid_green_base_(-16.-64)_(0.79)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Icon, B: (-16, -48), R: (10, 63)</div>
+        <img src="./icon_large_pyramid_green_base_(-16.-48)_(10.63)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Lady, B: (-16, -48), R: (5, 79)</div>
+        <img src="./lady_large_pyramid_green_base_(-16.-48)_(5.79)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Self Portrait, B: (-32, -80), R: (10, 111)</div>
+        <img src="./self_portrait_large_pyramid_green_base_(-32.-80)_(10.111)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Three Generations, B: (-16, -48), R: (0, 79)</div>
+        <img src="./three_generations_large_pyramid_green_base_(-16.-48)_(0.79)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Turkmen, B: (-16, -48), R: (11, 79)</div>
+        <img src="./turkmen_large_pyramid_green_base_(-16.-48)_(11.79)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Village, B: (-6, -64), R: (21, 79)</div>
+        <img src="./village_large_pyramid_green_base_(-6.-64)_(21.79)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Train, B: (0, -48), R: (47, 63)</div>
+        <img src="./train_large_pyramid_green_base_(0.-48)_(47.63)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Emir, B: (-32, -48), R: (-31, 63)</div>
+        <img src="./emir_large_pyramid_green_base_(-32.-48)_(31.63)_.png" class="tif-element">
+      </div>
+    </div>
+    <div id="tif-img-container">
+    <br>
+      <h2>Large TIF Images (with Feature Gradient):</h2>
+      <div class="grid-element">
+        <div>Harvesters</div>
+        <img src="./harvesters_large_pyramid_feature_gradient_(31.79)_(24.143)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Icon</div>
+        <img src="./icon_large_pyramid_feature_gradient_(31.63)_(31.111)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Lady</div>
+        <img src="./lady_large_pyramid_feature_gradient_(16.63)_(28.127)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Self Portrait</div>
+        <img src="./self_portrait_large_pyramid_feature_gradient_(47.95)_(47.191)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Three Generations</div>
+        <img src="./three_generations_large_pyramid_feature_gradient_(24.63)_(21.127)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Turkmen</div>
+        <img src="./turkmen_large_pyramid_feature_gradient_(31.79)_(32.127)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Village</div>
+        <img src="./village_large_pyramid_feature_gradient_(19.79)_(31.159)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Train</div>
+        <img src="./train_large_pyramid_feature_gradient_(15.63)_(47.95)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Emir</div>
+        <img src="./emir_large_pyramid_feature_gradient_(31.63)_(47.127)_.png" class="tif-element">
+      </div>
+    </div>
+    <div id="tif-img-container">
+    <br>
+      <h2>Large TIF Images (with Auto Contrast using blue base):</h2>
+      <div class="grid-element">
+        <div>Harvesters</div>
+        <img src="./harvesters_large_pyramid_auto_contrast_(31.79)_(24.143)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Icon</div>
+        <img src="./icon_large_pyramid_auto_contrast_(31.63)_(31.111)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Lady</div>
+        <img src="./lady_large_pyramid_auto_contrast_(16.63)_(28.127)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Self Portrait</div>
+        <img src="./self_portrait_large_pyramid_auto_contrast_(47.95)_(47.191)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Three Generations</div>
+        <img src="./three_generations_large_pyramid_auto_contrast_(24.63)_(21.127)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Turkmen</div>
+        <img src="./turkmen_large_pyramid_auto_contrast_(31.79)_(32.127)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Village</div>
+        <img src="./village_large_pyramid_auto_contrast_(19.79)_(31.159)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Train</div>
+        <img src="./train_large_pyramid_auto_contrast_(15.63)_(47.95)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Emir</div>
+        <img src="./emir_large_pyramid_auto_contrast_(31.63)_(47.127)_.png" class="tif-element">
+      </div>
+    </div>
+  
+    <div id="tif-img-container">
+    <br>
+      <h2>Examples of my choosing:</h2>
+      <div class="grid-element">
+        <div>Flowers (with auto contrast)</div>
+        <img src="./flowers_large_pyramid_auto_contrast_(0.63)_(-32.111)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Wood Boat (with green base)</div>
+        <img src="./wood_boat_large_pyramid_green_base_(26.-32)_(-16.95)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Stream (with auto contrast)</div>
+        <img src="./stream_large_pyramid_auto_contrast_(-9.47)_(-9.143)_.png" class="tif-element">
+      </div>
+      <div class="grid-element">
+        <div>Sailors (with feature gradient)</div>
+        <img src="./sailors_large_pyramid_feature_gradient_(31.31)_(40.63)_.png" class="tif-element">
+      </div>
+    </div>  
+
+<div id="lo-engage-ext-container"><div data-reactroot=""></div></div><link rel="stylesheet" type="text/css" href="chrome-extension://liecbddmkiiihnedobmlmillhodjkdmb/css/content.css"></body></html>
