@@ -1,15 +1,44 @@
 close all; % closes all figures
 
 % read images and convert to single format
-imname = ["man.jpg", "woman.jpg", "earth.jpg", "saturn.jpg", "dog.jpg", "cat.jpg"];
+imname = ["gala.jpg", "man.jpg", "woman.jpg", "earth.jpg", "saturn.jpg", "dog.jpg", "cat.jpg"];
+stack_images = ["gala.jpg", "man_woman_color_hybrid.jpg", "earth_saturn_color_hybrid.jpg", "dog_cat_color_hybrid.jpg"];
+
+% i = 1;
+% 
+% while i < length(imname)
+%     im12 = process(imname{i}, imname{i+1});   
+%     i = i + 2;
+% end
 
 i = 1;
-while i < length(imname)
-    process(imname{i}, imname{i+1});
-    i = i + 2;
+
+N = 7; % number of pyramid levels (you may use more or fewer, as needed)
+for i = 1:length(stack_images)
+    % %% Compute and display Gaussian and Laplacian Pyramids (you need to supply this function)
+    pyramids(stack_images{i}, N);
 end
 
-function process(name1, name2)
+
+
+
+function pyramids(name, N)
+    close all;
+    sigma = 1;
+    im = im2single(imread(name));
+    imG = rgb2gray(im); 
+    for i = 1:N
+        imGN = imgaussfilt(imG, sigma);
+        sigma = sigma * 2;
+        detail = mat2gray(imG - imGN);
+        imG = imGN;
+        subplot(2,N,i), imshow(imGN);
+        subplot(2,N,N+i), imshow(detail);
+    end
+
+end
+
+function im12 = process(name1, name2)
     im1C = im2single(imread(name1));
     im2C = im2single(imread(name2));
 
@@ -34,21 +63,11 @@ function process(name1, name2)
     %% Choose the cutoff frequencies and compute the hybrid image (you supply
     %% this code)
     hybridImage(im1, im2, name1, name2, false);
-    hybridImage(im1C, im2, name1, name2, true);
+    im12 = hybridImage(im1C, im2, name1, name2, true);
 end
 
-
-
-
-
-
-
-% %% Compute and display Gaussian and Laplacian Pyramids (you need to supply this function)
-% N = 5; % number of pyramid levels (you may use more or fewer, as needed)
-% pyramids(im12, N);
-
 function im12 = hybridImage(im1, im2, name1, name2, color)
-    sigma = 4;
+    sigma = [3 3];
     low1 = imgaussfilt(im1, sigma);
     low2 = imgaussfilt(im2, sigma);
     

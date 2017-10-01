@@ -1,15 +1,43 @@
 close all; % closes all figures
 
 % read images and convert to single format
-imname = ["man.jpg", "woman.jpg", "earth.jpg", "saturn.jpg", "dog.jpg", "cat.jpg"];
+imname = ["gala.jpg", "man.jpg", "woman.jpg", "earth.jpg", "saturn.jpg", "dog.jpg", "cat.jpg"];
+
+% i = 1;
+% 
+% while i < length(imname)
+%     im12 = process(imname{i}, imname{i+1});   
+%     i = i + 2;
+% end
 
 i = 1;
-while i < length(imname)
-    process(imname{i}, imname{i+1});
-    i = i + 2;
+
+N = 5; % number of pyramid levels (you may use more or fewer, as needed)
+while i < 2
+    % %% Compute and display Gaussian and Laplacian Pyramids (you need to supply this function)
+    pyramids(imname{i}, N);
+    i = i + 1;
 end
 
-function process(name1, name2)
+
+
+
+function pyramids(name, N)
+    close all;
+%     sigma = 3;
+    im = im2single(imread(name));
+    imG = rgb2gray(im); 
+    figure, imshow(imG);
+    for i = 1:N-1
+        imGN = imgaussfilt(imG, [5 5]);
+        detail = mat2gray(imG - imGN);
+        imG = imGN;
+        subplot(1,N,i), imshow(imGN)
+    end
+
+end
+
+function im12 = process(name1, name2)
     im1C = im2single(imread(name1));
     im2C = im2single(imread(name2));
 
@@ -34,18 +62,8 @@ function process(name1, name2)
     %% Choose the cutoff frequencies and compute the hybrid image (you supply
     %% this code)
     hybridImage(im1, im2, name1, name2, false);
-    hybridImage(im1C, im2, name1, name2, true);
+    im12 = hybridImage(im1C, im2, name1, name2, true);
 end
-
-
-
-
-
-
-
-% %% Compute and display Gaussian and Laplacian Pyramids (you need to supply this function)
-% N = 5; % number of pyramid levels (you may use more or fewer, as needed)
-% pyramids(im12, N);
 
 function im12 = hybridImage(im1, im2, name1, name2, color)
     sigma = 4;
