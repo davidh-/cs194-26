@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html class="gr__inst_eecs_berkeley_edu"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252"></head><body data-gr-c-s-loaded="true">
+<style type="text/css">
+	h1   {font-family:helvetica;
+		padding-top: 1%;
+		font-size: 45px;}
+	h3   {font-family:helvetica;
+		padding-top: 1%;
+		font-size: 30px;}
+	h2   {font-family:helvetica;
+		padding-top: 1%;
+		font-size: 20px;}
+	h4	{font-family:helvetica;
+		padding-top: 1%;
+		font-size: 38px;}
+	p   {font-family:helvetica;
+		font-size: 18px;
+		line-height: 140%;}
+	img {
+		padding: 0% 01% 1% 0%;
+	    width: 25%;}
+</style>
+<h1>CS194 Project 3</h1>
+<p> David Dominguez Hooper 24828373 </p>
+<p> Frequencies and Gradients: The objective of this project is to blend images together using different approaches.  </p>
+
+<h4> Part 1 </h4>
+
+<h3>Warmup 1.1</h3>
+<p> To sharpen an image, I first applied a gaussian filter (with a 5 x 5 kernel) on each of the 3 color channels of the image to create the blur filter and subtracted that result from the original image to get the high frequency details of the image.  I multiplied the highpass detailed image by alpha and added it back to the original image. For this image I used an alpha of 3.</p>
+
+<h2>Original</h2>
+<img src="./1.1_fire.jpg" alt="1.1_fire">
+
+<h2>Blurred</h2>
+<img src="./1.1_fire_blurred.jpg" alt="1.1_fire_blurred">
+
+<h2>High Frequency</h2>
+<img src="./1.1_fire_high-frequency.jpg" alt="1.1_fire_high-frequency">
+
+<h2>Sharpened</h2>
+<img src="./1.1_fire_sharpened.jpg" alt="1.1_fire_sharpened">
+
+
+<h3>1.2 Hybrid Images</h3>
+<p> These hybrid images were obtained by taking the low frequencies of one image and the high frequencies of the other and adding them together. I tried to find a Gaussian kernel that would work well on all of the images provided. I found that a [4 4] kernel does well as it doesnt blur the lowpass image too much and doesnt bring out too much detail of the high pass image.</p>
+
+
+<h2>Original Gray and FFT</h2>
+<img src="./1.2_man_grayed.jpg" alt="1.2_man">
+<img src="./1.2_man_fft.jpg" alt="1.2_man">
+<br>
+<img src="./1.2_harry_grayed.jpg" alt="1.2_man">
+<img src="./1.2_harry_fft.jpg" alt="1.2_man">
+<h2>Lowpass and Highpass</h2>
+<img src="./1.2_harry_lowpass.jpg" alt="1.2_man">
+<img src="./1.2_harry_lowpass_fft.jpg" alt="1.2_man">
+<br>
+<img src="./1.2_man_highpass.jpg" alt="1.2_man">
+<img src="./1.2_man_highpass_fft.jpg" alt="1.2_man">
+<br>
+<p> [4 4] Gaussian </p>
+<h2>Afterwards</h2>
+<img src="./1.2_man_1.2_harry_hybrid.jpg" alt="hybrid_cat">
+<img src="./1.2_man_1.2_harry_hybrid_fft.jpg" alt="hybrid_cat_grey">
+
+
+
+<h2>Original Gray and FFT</h2>
+<img src="./1.2_mars_grayed.jpg" alt="1.2_man">
+<img src="./1.2_mars_fft.jpg" alt="1.2_man">
+<br>
+<img src="./1.2_earth_grayed.jpg" alt="1.2_man">
+<img src="./1.2_earth_fft.jpg" alt="1.2_man">
+<h2>Lowpass and Highpass</h2>
+<img src="./1.2_mars_lowpass.jpg" alt="1.2_man">
+<img src="./1.2_mars_lowpass_fft.jpg" alt="1.2_man">
+<br>
+<img src="./1.2_earth_highpass.jpg" alt="1.2_man">
+<img src="./1.2_earth_highpass_fft.jpg" alt="1.2_man">
+<br>
+<p> [4 4] Gaussian </p>
+<h2>Afterwards</h2>
+<img src="./1.2_earth_1.2_mars_hybrid.jpg" alt="hybrid_cat">
+<img src="./1.2_earth_1.2_mars_hybrid_fft.jpg" alt="hybrid_cat_grey">
+
+
+<h2>Failure: Original Gray and FFT</h2>
+<img src="./1.2_wolf_grayed.jpg" alt="1.2_man">
+<img src="./1.2_wolf_fft.jpg" alt="1.2_man">
+<br>
+<img src="./1.2_dog_grayed.jpg" alt="1.2_man">
+<img src="./1.2_dog_fft.jpg" alt="1.2_man">
+<h2>Lowpass and Highpass</h2>
+<img src="./1.2_wolf_lowpass.jpg" alt="1.2_man">
+<img src="./1.2_wolf_lowpass_fft.jpg" alt="1.2_man">
+<br>
+<img src="./1.2_dog_highpass.jpg" alt="1.2_man">
+<img src="./1.2_dog_highpass_fft.jpg" alt="1.2_man">
+<br>
+<p> [4 4] Gaussian </p>
+<h2>Afterwards</h2>
+<img src="./1.2_dog_1.2_wolf_hybrid.jpg" alt="hybrid_cat">
+<img src="./1.2_dog_1.2_wolf_hybrid_fft.jpg" alt="hybrid_cat_grey">
+
+<h2>Bells and Whistles: Color</h2>
+<img src="./1.2_man_1.2_harry_color_hybrid.jpg" alt="1.2_man">
+<img src="./1.2_earth_1.2_mars_color_hybrid.jpg" alt="1.2_man">
+<img src="./1.2_dog_1.2_wolf_color_hybrid.jpg" alt="1.2_man">
+
+<p>The color images help the low pass filter part of the image become more pronounced. I would say that when only using color in the high pass image, you can barely see the color in the details, but in the low pass use of color, the color is more prominent.</p>
+
+<h2> Notes</h2>
+<p>The high pass images (details) can clearly be seen up close. As you move farther away from the image, you begin to see the low pass features of the image. In the last set of images, I found that a failure point is when the size of the images aren't well-correlated. The wolf's face is much bigger than the dog's and so it looks a tad bit off. I considered this a failure but the effect still works if you stand far away, you only see the wolf. Still, I think it's important to note that the images should also be proportional to each other.  
+</p>
+
+<h3>1.3: Gaussian and Laplacian Stacks</h3>
+<p>Here, I implemented the Gaussian and Laplacian stack. The images are the same dimension every step. I applied the Gaussian filter at each level for the Gaussian stack with an increasing kernel size. The Gaussain kernel starts off at [1 1] and then doubles until the 5th stack when it becomes [16 16]. For the Laplacian Stack, I subtracted the Gaussian filter of that level from the level above. I set the number of levels of the stack to be N=5. </p>
+<h2>Original</h2>
+<img src="./1.3_gala.jpg" alt="lincoln">
+<h2>Afterwards</h2>
+<p>Lowpass</p>
+<img src="./1.3_gala_gas1.jpg" alt="lincoln_lowpass1">
+<img src="./1.3_gala_gas2.jpg" alt="lincoln_lowpass1">
+<img src="./1.3_gala_gas3.jpg" alt="lincoln_lowpass1">
+<img src="./1.3_gala_gas4.jpg" alt="lincoln_lowpass1">
+<img src="./1.3_gala_gas5.jpg" alt="lincoln_lowpass1">
+
+<p>Highpass</p>
+<img src="./1.3_gala_lap1.jpg" alt="lincoln_lowpass1">
+<img src="./1.3_gala_lap2.jpg" alt="lincoln_lowpass1">
+<img src="./1.3_gala_lap3.jpg" alt="lincoln_lowpass1">
+<img src="./1.3_gala_lap4.jpg" alt="lincoln_lowpass1">
+<img src="./1.3_gala_lap5.jpg" alt="lincoln_lowpass1">
+
+<h2>Original</h2>
+<img src="./1.2_man_1.2_harry_color_hybrid.jpg" alt="hybrid_cat_hermione">
+<h2>Afterwards</h2>
+<p>Lowpass</p>
+<img src="./1.2_man_1.2_harry_color_hybrid_gas1.jpg" alt="hybrid_cat_hermione_lowpass1">
+<img src="./1.2_man_1.2_harry_color_hybrid_gas2.jpg" alt="hybrid_cat_hermione_lowpass1">
+<img src="./1.2_man_1.2_harry_color_hybrid_gas3.jpg" alt="hybrid_cat_hermione_lowpass1">
+<img src="./1.2_man_1.2_harry_color_hybrid_gas4.jpg" alt="hybrid_cat_hermione_lowpass1">
+<img src="./1.2_man_1.2_harry_color_hybrid_gas5.jpg" alt="hybrid_cat_hermione_lowpass1">
+
+<p>Highpass</p>
+<img src="./1.2_man_1.2_harry_color_hybrid_lap1.jpg" alt="hybrid_cat_hermione_high_pass0">
+<img src="./1.2_man_1.2_harry_color_hybrid_lap2.jpg" alt="hybrid_cat_hermione_high_pass0">
+<img src="./1.2_man_1.2_harry_color_hybrid_lap3.jpg" alt="hybrid_cat_hermione_high_pass0">
+<img src="./1.2_man_1.2_harry_color_hybrid_lap4.jpg" alt="hybrid_cat_hermione_high_pass0">
+<img src="./1.2_man_1.2_harry_color_hybrid_lap5.jpg" alt="hybrid_cat_hermione_high_pass0">
+
+
+
+
+<h2>Original</h2>
+<img src="./1.2_earth_1.2_mars_color_hybrid.jpg" alt="grumpycat">
+<h2>Afterwards</h2>
+<p>Lowpass</p>
+<img src="./1.2_earth_1.2_mars_color_hybrid_gas1.jpg" alt="grumpycat_lowpass1">
+<img src="./1.2_earth_1.2_mars_color_hybrid_gas2.jpg" alt="grumpycat_lowpass1">
+<img src="./1.2_earth_1.2_mars_color_hybrid_gas3.jpg" alt="grumpycat_lowpass1">
+<img src="./1.2_earth_1.2_mars_color_hybrid_gas4.jpg" alt="grumpycat_lowpass1">
+<img src="./1.2_earth_1.2_mars_color_hybrid_gas5.jpg" alt="grumpycat_lowpass1">
+<p>Highpass</p>
+<img src="./1.2_earth_1.2_mars_color_hybrid_lap1.jpg" alt="grumpycat_lowpass1">
+<img src="./1.2_earth_1.2_mars_color_hybrid_lap2.jpg" alt="grumpycat_lowpass1">
+<img src="./1.2_earth_1.2_mars_color_hybrid_lap3.jpg" alt="grumpycat_lowpass1">
+<img src="./1.2_earth_1.2_mars_color_hybrid_lap4.jpg" alt="grumpycat_lowpass1">
+<img src="./1.2_earth_1.2_mars_color_hybrid_lap5.jpg" alt="grumpycat_lowpass1">
+
+
+
+
+
+
+<h3>1.4 Multiresolution Blending with color (Bells and Whistles included) </h3>
+<h2>Original and mask</h2>
+<img src="./orange.jpg" alt="orange">
+<img src="./apple.jpg" alt="apple">
+<img src="./mask_ao.jpg" alt="apple">
+<h2>Afterwards</h2>
+<img src="./oraple.jpg" alt="oraple">
+
+<h2>Original and mask</h2>
+<img src="./trump.jpg" alt="kangaroo">
+<img src="./hillary.jpg" alt="mouse">
+<img src="./mask_ao.jpg" alt="apple">
+<h2>Afterwards</h2>
+<img src="./trullary.jpg" alt="kangaroo_mouse">
+
+
+
+<h2>Trey and Daph Original</h2>
+<img src="./trey.jpg" alt="kangaroo">
+<img src="./daph.jpg" alt="mouse">
+<h2>Trey and Daph Aligned and Mask</h2>
+<img src="./trey_s.jpg" alt="kangaroo">
+<img src="./daph_s.jpg" alt="mouse">
+<img src="./trey_s_mask.jpg" alt="mouse_mask">
+<h2>Afterwards</h2>
+<img src="./trey_daph.jpg" alt="kangaroo_mouse">
+
+
+<h4> Part 2 </h4>
+<p> Human vision cares much more about the gradient of an image than the overall intensity.  So, when blending, we want the gradient of the composite inside the region to look as close as possible to the source image gradient, and the composite must match the target image on the boundary.</p>
+
+
+<h3>2.1 Toy Problem </h3>
+<p>For this part, I followed the instructions and recreated the toy image. I used the following equations: <br> </p>
+<img src="./2_1equation.jpg" alt="2_1Equation">
+<p> From here, this becomes a system of linear equations, and I used the format Ax = b to solve for x. Then, x is resized into the image and saved. 
+</p>
+
+
+<h2>Original</h2>
+<img src="./toy_problem.png" alt="toy_problem">
+<h2>Afterwards</h2>
+<img src="./toy_problem_reconstructed.png" alt="toy_gradient_saved">
+
+
+<h3>2.2 Poisson Blending </h3>
+<p>For this part, I utilized the following equation:</p>
+<img src="./2_2equation.jpg" alt="equation">
+<p> To do this, I created a matrix A and a vector b that would mimic the system of linear equations for Ax = b. Using these matrices, I solved for x, resized x and displayed the final result. For this part, since color is involved, I processed each color channel concurrently, and then put the results back together to create the final image.   </p>
+
+
+<h2>Originals for Los Angeles skyline, airplane, and Mask</h2>
+<img src="./LA.jpg" alt="beach">
+<img src="./airplane.jpg" alt="orange_drink">
+<img src="./im_s_LA_a.jpg" alt="im_s_beach">
+<img src="./mask_s_LA_a.jpg" alt="mask_beach">
+<img src="./copied_LA_a.jpg" alt="drink_copied_beach">
+
+<h2>Afterwards Using Poisson Blending</h2>
+<img src="./blended_LA_a.jpg" alt="blending_beach">
+
+
+
+<h2>Originals for Trex on New York street with Mask</h2>
+<img src="./newyork.jpg" alt="night_sky">
+<img src="./trex.jpg" alt="baymax_resized">
+<img src="./im_s_trex.jpg" alt="im_s_night">
+<img src="./mask_s_trex.jpg" alt="mask_night">
+<img src="./copied_trex.jpg" alt="night_baymax_copied">
+
+<h2>Afterwards Using Poisson Blending</h2>
+<img src="./blended_trex.jpg" alt="blending_night">
+
+
+
+
+<h2>Originals for drone tattoo on my friend Trey's face (Failed)</h2>
+<img src="./trey_face.png" alt="night_sky">
+<img src="./drone.jpg" alt="baymax_resized">
+<img src="./im_s_drone.jpg" alt="im_s_night">
+<img src="./mask_s_drone.jpg" alt="mask_night">
+<img src="./copied_drone.jpg" alt="night_baymax_copied">
+
+<h2>Afterwards Using Poisson Blending</h2>
+<p>The drone looks extremely dark in the Poisson blending result. I think this is because the drone was already dark and the tanish/shaded color of my friend Trey's skin caused it to be even darker. </p>
+<img src="./blended_drone.jpg" alt="blending_night">
+
+
+
+
+
+
+<h2>Bells and Whistles (Extra Points) Mixed Gradients </h2>
+
+<h2>Originals for Sweater, Cal logo, and Mask</h2>
+<img src="./sweater.jpg" alt="beach">
+<img src="./cal_logo.jpg" alt="orange_drink">
+<img src="./im_b_s_cal.jpg" alt="im_s_beach">
+<img src="./mask_b_s_cal.jpg" alt="mask_beach">
+<img src="./copied_cal.jpg" alt="drink_copied_beach">
+
+<h2>Afterwards Using Poisson Blending</h2>
+<img src="./blended_mixed_cal.jpg" alt="blending_beach">
+
+<p>The mixed gradients defintely helped with matching the background target texture to the source image. If you notice on the sweater, there are shaded parts due to the folds of the sweater. The mixed gradients was able to take this into account and creat the same fold on thd Cal logo.</p>
+
+
+
+<br>
+<h2> Comparing to Laplacian blending in Part 1 </h2>
+<p>Using the same images used during the Trey and Daph example, I ran it with the Poisson Blending and got the following results: </p>
+
+
+<h2>Afterwards Using Poisson Blending</h2>
+<img src="./blended_trey.jpg" alt="blending_mouse">
+<p>The blending is much better due to the Poisson using the Gaussian to determine the gradients. </p>
+
+<h2>Afterwards Using Poisson Blending with Mixed Gradients</h2>
+<img src="./blended_mixed_trey.jpg" alt="blending_mouse">
+<p>The blending is here is not good because of Daph's nose and eye features being more prominent than Trey's nose and eyes since the dog has darker features it takes more effect in the final result. </p>
+
+
+<br>
+<br>
+
+
+
+
+
+
+<p>Overall, I had a great time with this project. I learned the importance of creating a system of equations to solve for gradients to be used to merge an image with another. I personally like Multiresolution blending because it has more predictable effects. I felt that Poission had more artifacts but resulted in better results because of how it integrates the target image's intensities uinto the source image.</p>
+
+
+<div id="lo-engage-ext-container"><div data-reactroot=""></div></div><link rel="stylesheet" type="text/css" href="chrome-extension://liecbddmkiiihnedobmlmillhodjkdmb/css/content.css"></body></html>
