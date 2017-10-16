@@ -26,7 +26,8 @@ end
 % PART 1.3: Gaussian and Laplacian Stacks
 stack_images = ["1.3_gala.jpg", "1.2_man_1.2_harry_color_hybrid.jpg", "1.2_earth_1.2_mars_color_hybrid.jpg"];
 
-% N = 5; % number of pyramid levels (you may use more or fewer, as needed)
+% number of pyramid levels (you may use more or fewer, as needed)
+N = 5; 
 for i = 1:length(stack_images)
     name = stack_images{i};
     % %% Compute and display Gaussian and Laplacian Pyramids (you need to supply this function)

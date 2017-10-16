@@ -3,14 +3,34 @@
 
 close all; % closes all figures
 
+imname = ["george.jpg", "jack.jpg"];
+
+im1 = imresize(im2double(imread(imname{1})),[300 300]);
+im2 = imresize(im2double(imread(imname{2})),[300 300]);
+
 % Part 1: Defining Correspondences
 
+load('movingPoints.mat', 'movingPoints');
+load('fixedPoints.mat', 'fixedPoints');
+
+% h  = cpselect(im1,im2, movingPoints, fixedPoints);
+% 
+% save('movingPoints.mat', 'movingPoints');
+% save('fixedPoints.mat', 'fixedPoints');
+
+
+
+%     height = floor(size(fullim,1)/3);
+%     width = floor(size(fullim,2));
 
 % PART 2: Computing the "Mid-way Face"
+tri1_pts = delaunayTriangulation(movingPoints);
+tri2_pts = delaunayTriangulation(fixedPoints);
 
-tri1_pts = 0;
-tri2_pts = 0;
-
+figure, triplot(tri1_pts);
+set(gca,'Ydir','reverse')
+figure, triplot(tri2_pts);
+set(gca,'Ydir','reverse')
 
 A = computeAffine(tri1_pts,tri2_pts);
 
