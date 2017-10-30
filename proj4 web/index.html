@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0150)file:///Users/DavidHooper/Documents/Berkeley/2017-Fall/CS194%20Imaging/cs194-26/CS%20194-26%20Face%20Morphing_files/CS%20194-26%20Face%20Morphing.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="gr__inst_eecs_berkeley_edu"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style>
+  body {
+    padding: 100px;
+    width: 1200px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+</style>
+<title>CS 194-26 Face Morphing</title>
+
+
+</head><body data-gr-c-s-loaded="true">
+
+<h1 align="middle">CS 194-26: Image Manipulation and Computational Photography, Fall 2017</h1>
+<h1 align="middle">Project 4: Face Morphing</h1>
+<h2 align="middle">David Dominguez Hooper, CS194-26-abs</h2>
+
+<br><br>
+
+<div>
+
+<h2 align="middle">Overview</h2>
+  <p>
+In this assignment I produce a "morph" animation of my face into someone else's face, compute the mean of a population of faces and extrapolate from a population mean to create a caricature of yourself. For bells and whistles, I morph my friend Trey's face in 3 different ways!
+</p><p></p>
+
+<p></p>
+<h2 align="middle">Part 1: Face Morphing</h2>
+  <h3 align="middle">Defining Correspondences</h3>
+    <p>This section involved selecting corresponding points on the images you wish to morph together.  These points will later be linearly interpolated so that the geometry of the faces match, and morph from the first geometry to the second as the video plays.</p>
+    <div align="center">
+    <table style="width=100%">
+      <tbody><tr>
+        <td align="middle">
+          <img src="./faces_labeled.jpg" width="1000px">
+          <figcaption align="middle">George Clooney and Jack Nicholson</figcaption>
+        </td>
+        
+      </tr>
+    </tbody></table>
+  </div>
+
+  <h3 align="middle">Computing "Mid-Way" Face</h3>
+    <p>In this section we are trying to find the transformation matrix of each point A, so that we can insert the pixel values from point p on the original image, to point p' in the morphed image.  To do this, we define the following equation:</p>
+    <pre align="middle">             Ap' = p        (1)</pre>
+    <pre align="middle">      [a b t<sub>x</sub>][p'<sub>x</sub>]   [p<sub>x</sub>]
+      [c d t<sub>y</sub>][p'<sub>y</sub>] = [p<sub>y</sub>]
+      [0 0  1][ 1 ]   [1 ]
+    </pre>
+    <p>To find the A matrix, we define triangles of three points, using the Delauney triangulation scheme.  To find the transformation of the points inside the triangle defined by points p'<sub>1</sub>, p'<sub>2</sub>, p'<sub>3</sub> to p<sub>1</sub>, p<sub>2</sub>, p<sub>3</sub>:</p>
+    <pre align="middle">      [a b t<sub>x</sub>][|   |   | ]   [|  |  | ]
+      [c d t<sub>y</sub>][p'<sub>1</sub> p'<sub>2</sub> p'<sub>3</sub>] = [p<sub>1</sub> p<sub>2</sub> p<sub>3</sub>]
+      [0 0  1][|   |   | ]   [|  |  | ]
+
+
+      [a b t<sub>x</sub>]   [|  |  | ] ([ |   |  | ]) -1
+      [c d t<sub>y</sub>] = [p<sub>1</sub> p<sub>2</sub> p<sub>3</sub>] ([p'<sub>1</sub> p'<sub>2</sub> p'<sub>3</sub>])   
+      [0 0  1]   [|  |  | ] ([ |   |  | ])   
+    </pre>
+    <p>To find all values p' inside the new warped image, all we have to do now is to multiply this A matrix to p', like in equation (1) above.</p>
+
+    <div align="center">
+      <table style="width=100%">
+        <tbody><tr>
+          <td align="middle">
+            <img src="./george.jpg" width="400px">
+            <figcaption align="middle">George</figcaption>
+          </td>
+          <td align="middle">
+            <img src="./george_jack_mid.jpg" width="400px">
+            <figcaption align="middle">Geck</figcaption>
+          </td>
+          <td align="middle">
+            <img src="./jack.jpg" width="400px">
+            <figcaption align="middle">Jack</figcaption>
+          </td>
+        </tr>
+      </tbody></table>
+    </div>
+  <h3 align="middle">The Morph Sequence</h3>
+    <p>To morph two images together, I did the same thing as in the mid-way face, but instead of doing a simple average of the geometry and pixels, I did a weighted average of the geometry and pixels.  For each gif, I took 20 steps from the first image to the second one, with 1/4 of a second in between each image.  Here are some examples of things I morphed:</p>
+    <div align="center">
+      <table style="width=100%">
+        <tbody><tr>
+          <td align="middle">
+            <img src="./george.jpg" width="400px">
+            <figcaption align="middle">George</figcaption>
+          </td>
+          <td align="middle">
+  <img src="./morph_george_jack.gif" width="525px">
+          </td>
+          <td align="middle">
+            <img src="./jack.jpg" width="400px">
+            <figcaption align="middle">Jack</figcaption>
+          </td>
+        </tr>
+        
+        <tr>
+          <td align="middle">
+            <img src="./10-1m.bmp" width="400px">
+            <figcaption align="middle">Person #10</figcaption>
+          </td>
+          
+<td align="middle">
+  <img src="./morph_mean7.gif" width="525px">
+          </td>
+
+          <td align="middle">
+            <img src="./avg_dane.jpg" width="400px">
+            <figcaption align="middle">Average Danish Face</figcaption>
+          </td>
+        </tr>
+        <tr>
+          <td align="middle">
+            <img src="./11-1m.bmp" width="400px">
+            <figcaption align="middle">Person #11</figcaption>
+          </td>
+          <td align="middle">
+  <img src="./morph_mean8.gif" width="525px">
+          </td>
+          <td align="middle">
+            <img src="./avg_dane.jpg" width="400px">
+            <figcaption align="middle">Average Danish Face</figcaption>
+          </td>
+        </tr>
+      </tbody></table>
+    </div>
+
+
+<h2 align="middle">Part 2: "Mean Face" of a Population</h2>
+  <p>This part involved taking the faces of each person in the dataset, and computing the average geometry.  I then transformed each face to have the same geometry, and averaged all the images together.  The results of the average is below, along with the average of just the males and just the females.   </p>
+  <div align="center">
+    <table style="width=100%">
+      <tbody><tr>
+        <td align="middle">
+          <img src="./avg_img_m.jpg" width="400px">
+          <figcaption align="middle">Average Male Face</figcaption>
+        </td>
+        <td align="middle">
+          <img src="./avg_dane.jpg" width="400px">
+          <figcaption align="middle">Average Danish Face</figcaption>
+        </td>
+        <td align="middle">
+          <img src="./avg_img_f.jpg" width="400px">
+          <figcaption align="middle">Average Female Face</figcaption>
+        </td>
+      </tr>
+    </tbody></table>
+  </div>
+
+  <p>Here is my face transformed into the Average Danish shape, and the Average Danish face transformed into my geometry. You can see here that if the two images aren't similar in size, there will be very drastic morphing. </p>
+  <div align="center">
+    <table style="width=100%">
+      <tbody><tr>
+        <td align="middle">
+          <img src="./david.jpg" width="300px">
+          <figcaption align="middle">David</figcaption>
+        </td>
+        <td align="middle">
+          <img src="./morph_mean_david.jpg" width="300px">
+          <figcaption align="middle">David Transformed into Danish</figcaption>
+        </td>
+        <td align="middle">
+          <img src="./morph_mean_into_myface.jpg" width="300px">
+          <figcaption align="middle">Average Danish Transformed</figcaption>
+        </td>
+        <td align="middle">
+          <img src="./avg_dane.jpg" width="300px">
+          <figcaption align="middle">Average Danish</figcaption>
+        </td>
+      </tr>
+    </tbody></table>
+  </div>
+  <p>I morphed some of the faces of the Danish people in the dataset in the previous section.</p>
+
+  <h3 align="middle">Caricatures: Extrapolating from the mean</h3>
+  <p>Here is the caricature of myself.  To do this, I created the average points of the faces to be equal to my face points weighted by 1.5 subtracted by the average female pts weighted by 0.5.  I used these modified "caricature" points to do the morphing and found that even though the results are exaggerated, my eyes look smaller in the picture which shows a hint of some woman qualities. </p> 
+  <div align="center">
+    <table style="width=100%">
+      <tbody><tr>
+        <td align="middle">
+          <img src="./david.jpg" width="400px">
+          <figcaption align="middle">David</figcaption>
+        </td>
+        <td align="middle">
+          <img src="./morph_mean_david_fem_caricature.jpg" width="400px">
+          <figcaption align="middle">David more feminine eyes caricature</figcaption>
+        </td>
+        <td align="middle">
+          <img src="./avg_img_f.jpg" width="400px">
+          <figcaption align="middle">Average Female</figcaption>
+        </td>
+      </tr>
+    </tbody></table>
+  </div>
+<h2 align="middle">Part 3: Bells and Whistles</h2>
+  <h3 align="middle">Change Age and Ethnicity</h3>
+  <p>In the next images, I took an image of my good friend Trey, and made him look more like me.</p>
+  <div align="center">
+    <table style="width=100%">
+      <tbody><tr>
+        <td align="middle">
+          <img src="./trey2.jpg" width="300px">
+          <figcaption align="middle">Trey</figcaption>
+        </td>
+        <td align="middle">
+          <img src="./morph_trey_shape.gif" width="300px">
+          <figcaption align="middle">Trey with just shape changed</figcaption>
+        </td>
+        
+        <td align="middle">
+          <img src="./morph_trey_appearance.gif" width="300px">
+          <figcaption align="middle">Trey with just appearance changed</figcaption>
+        </td><td align="middle">
+          <img src="./morph_trey_both.gif" width="300px">
+          <figcaption align="middle">Trey with both shape &amp; appearance changed</figcaption>
+        </td>
+        <td align="middle">
+          <img src="./david.jpg" width="300px">
+          <figcaption align="middle">David</figcaption>
+        </td>
+      </tr>
+    </tbody></table>
+  </div>
+  
+  
+</div>
+
